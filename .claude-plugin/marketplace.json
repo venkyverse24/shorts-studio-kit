@@ -1,0 +1,14 @@
+{
+  "name": "shorts-studio-kit",
+  "description": "Skills and agents for making YouTube Shorts, with local helper scripts. Never uploads.",
+  "owner": {
+    "name": "Shorts Studio Kit contributors"
+  },
+  "plugins": [
+    {
+      "name": "shorts",
+      "source": "./",
+      "description": "Make YouTube Shorts from a one-line topic with 14 skills and 7 agents. Local scripts, no accounts, never uploads."
+    }
+  ]
+}

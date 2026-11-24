@@ -1,0 +1,16 @@
+{
+  "name": "shorts",
+  "description": "Make YouTube Shorts from a one-line topic: research, scored hooks, script, visuals, sound, QC and a publish pack, with 14 skills and 7 agents. Never uploads.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": [
+    "youtube",
+    "shorts",
+    "video",
+    "script",
+    "qc"
+  ],
+  "author": {
+    "name": "Shorts Studio Kit contributors"
+  }
+}

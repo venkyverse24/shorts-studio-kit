@@ -1,0 +1,6 @@
+{
+  "_help": "Private terms are blocked in hooks, titles, thumbnails and by the QC skill. Add your own name, hostnames, usernames, home folder, employer, suburb. Emails, IP addresses and home paths are always blocked. This file never leaves your computer: keep it out of any public repo.",
+  "forbidden": [],
+  "banned_phrases": [],
+  "allowed_caps": []
+}
