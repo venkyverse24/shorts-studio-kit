@@ -9,7 +9,7 @@ After a Short is live, `channel-analyst` handles numbers, retention, the queue a
 
 Rules live in skills, not in prompts: `shorts-voice`, `shorts-hooks`, `shorts-seo`, `shorts-3d`, `shorts-sound`,
 `shorts-earshot`, `shorts-openverse`, `shorts-setup`, `shorts-publish`, `shorts-qc`, `shorts-analytics`, `shorts-plan`, `shorts-comments`.
-Helper scripts: `tools/hookscore.py`, `tools/titlecheck.py`, `tools/ytsuggest.py`, `tools/analytics.py`, `tools/openverse.py`.
+Helper scripts: `tools/hookscore.py`, `tools/titlecheck.py`, `tools/ytsuggest.py`, `tools/analytics.py`, `tools/openverse.py`, `tools/setup_tools.py`.
 
 Never upload, post, reply, create accounts or use paid services without asking.
 <!-- shorts-studio-kit:end -->

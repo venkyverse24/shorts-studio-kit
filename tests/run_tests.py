@@ -1,5 +1,5 @@
 """Smoke tests for Shorts Studio Kit. Standard library only.   python tests/run_tests.py"""
-import csv, json, os, re, subprocess, sys, tempfile
+import csv, json, os, re, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = sys.executable
@@ -87,7 +87,7 @@ with tempfile.TemporaryDirectory() as d:
     check("shorts-kit.json" in open(os.path.join(target, ".gitignore"), encoding="utf-8").read(), "scaffold.py keeps shorts-kit.json out of git")
 
 # tools run
-for t in ("hookscore", "titlecheck", "ytsuggest", "openverse", "analytics"):
+for t in ("hookscore", "titlecheck", "ytsuggest", "openverse", "analytics", "setup_tools"):
     code, out = run(["-W", "error", "-c", f"import ast;ast.parse(open(r'{ROOT}/tools/{t}.py',encoding='utf-8').read())"])
     check(code == 0, f"tools/{t}.py parses cleanly")
 
@@ -119,6 +119,33 @@ with tempfile.TemporaryDirectory() as d:
     csv.writer(open(os.path.join(d, "ret.csv"), "w", newline="")).writerows(rows)
     code, out = run([at, "retention", os.path.join(d, "ret.csv"), "--length", "60"], cwd=d)
     check(code == 0 and "biggest drops" in out and "30 s" in out, "analytics retention finds drops")
+
+# setup_tools: planning per OS, status, brand.md fill, pinned model files
+import importlib.util
+spec = importlib.util.spec_from_file_location("setup_tools", os.path.join(ROOT, "tools", "setup_tools.py"))
+st_mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(st_mod)
+check(all(len(h) == 64 and sz > 1000000 for sz, h in st_mod.MODELS.values()), "setup_tools pins size and SHA-256 for both Kokoro files")
+check("av<19" in st_mod.PY_PACKAGES, "setup_tools pins av<19 (av 19 breaks faster-whisper transcribe)")
+with tempfile.TemporaryDirectory() as d:
+    def dry(os_name, *extra):
+        env = dict(os.environ, SHORTS_TOOLS_FAKE_OS=os_name, SHORTS_TOOLS_ASSUME_MISSING="ffmpeg,blender,voice-packages,kokoro-models,whisper-model")
+        p = subprocess.run([PY, os.path.join(ROOT, "tools", "setup_tools.py"), "--target", d, "--install", "--dry-run", "--with", "blender"] + list(extra), capture_output=True, text=True, env=env)
+        return p.returncode, p.stdout
+    code, out = dry("windows"); check(code == 0 and "winget install --id Gyan.FFmpeg" in out and "BlenderFoundation.Blender" in out and "Dry run: nothing was changed" in out, "setup_tools plans winget installs on Windows")
+    code, out = dry("mac"); check("brew install ffmpeg" in out and "brew install --cask blender" in out, "setup_tools plans Homebrew installs on macOS")
+    code, out = dry("linux"); check("sudo apt-get install -y ffmpeg" in out, "setup_tools plans apt installs on Linux (sudo is never run silently)")
+    check(not os.path.exists(os.path.join(d, ".shorts-tools")), "setup_tools dry run creates nothing")
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "setup_tools.py"), "--target", d, "--json"], capture_output=True, text=True)
+    status = json.loads(p.stdout); check({"python", "ffmpeg", "voice-packages", "kokoro-models", "whisper-model", "blender"} <= set(status), "setup_tools --json reports every tool")
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "setup_tools.py"), "--target", d, "--installer-mode"], capture_output=True, text=True, stdin=subprocess.DEVNULL)
+    check(p.returncode == 0 and not os.path.exists(os.path.join(d, ".shorts-tools")), "setup_tools installer mode with no terminal only shows the table")
+    brand = os.path.join(d, "brand.md"); shutil.copyfile(os.path.join(ROOT, "templates", "brand.md"), brand)
+    cfg = {"python": "python", "venv_python": "V/python", "ffmpeg": "F/ffmpeg", "ffprobe": "F/ffprobe", "kokoro_model": "M/k.onnx", "kokoro_voices": "M/v.bin", "whisper_model": "small.en", "blender": None}
+    filled = st_mod.fill_brand(brand, cfg); text = open(brand, encoding="utf-8").read()
+    check(len(filled) == 4 and "Kokoro, local" in text and "F/ffmpeg" in text, "setup_tools fills the empty tool lines in brand.md")
+    open(brand, "w", encoding="utf-8").write(text.replace("- Python command (python, python3, py): python", "- Python command (python, python3, py): mine"))
+    st_mod.fill_brand(brand, dict(cfg, python="other"))
+    check("Python command (python, python3, py): mine" in open(brand, encoding="utf-8").read(), "setup_tools never overwrites a tool line you filled in")
 
 print("\n%d failed" % len(fails) if fails else "\nall passed")
 sys.exit(1 if fails else 0)

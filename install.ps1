@@ -52,7 +52,7 @@ if (-not (Select-String -Path $claude -Pattern 'shorts-studio-kit:begin' -Quiet)
 # keep private terms out of git
 $gi = "$Target\.gitignore"
 if (-not (Test-Path $gi)) { New-Item -ItemType File -Path $gi | Out-Null }
-foreach ($line in 'shorts-kit.json', '.env*') {
+foreach ($line in 'shorts-kit.json', '.env*', '.shorts-tools/') {
     if (-not (Select-String -Path $gi -Pattern ([regex]::Escape($line)) -SimpleMatch -Quiet)) { Add-Content $gi $line }
 }
 
@@ -62,7 +62,12 @@ Write-Host "Shorts Studio Kit installed into $Target" -ForegroundColor Green
 Write-Host "  files written: $copied"
 if ($skipped) { Write-Host "  kept your edited versions (use -Force to overwrite):"; $skipped | ForEach-Object { Write-Host "    $_" } }
 if ($kept)    { Write-Host "  already present, not touched: $($kept.Count) template file(s)" }
-if (-not $py) { Write-Host "  WARNING: Python 3 not found on PATH. The scripts in tools\ need it." -ForegroundColor Yellow }
+if (-not $py) { Write-Host "  WARNING: Python 3 was not found. Install Python 3.10 or newer (for example: winget install Python.Python.3.12), then run: python tools\setup_tools.py --install" -ForegroundColor Yellow }
+else {
+    # Shows what is installed and what is missing (ffmpeg, local voice, Whisper). Installs only after your yes.
+    $pyArgs = if ($py.Name -eq 'py.exe') { @('-3') } else { @() }
+    & $py.Source @pyArgs "$Target\tools\setup_tools.py" --target $Target --installer-mode
+}
 Write-Host ""
 Write-Host "Next:"
 Write-Host "  1. Fill in brand.md and shorts-kit.json (your private terms; this file stays out of git)."

@@ -28,9 +28,14 @@ esac
 
 mkdir -p "$tmp/x"
 if command -v unzip >/dev/null 2>&1; then unzip -q "$tmp/kit.zip" -d "$tmp/x"
-elif command -v python3 >/dev/null 2>&1; then python3 -m zipfile -e "$tmp/kit.zip" "$tmp/x"
-elif command -v python >/dev/null 2>&1; then python -m zipfile -e "$tmp/kit.zip" "$tmp/x"
-else echo "Need unzip or Python to unpack the kit." >&2; exit 1; fi
+else
+  PYZ=""
+  for c in python3 python py; do
+    if "$c" -c "import zipfile" >/dev/null 2>&1; then PYZ="$c"; break; fi
+  done
+  [ -n "$PYZ" ] || { echo "Need unzip or Python to unpack the kit." >&2; exit 1; }
+  "$PYZ" -m zipfile -e "$tmp/kit.zip" "$tmp/x"
+fi
 
 kit="$(find "$tmp/x" -maxdepth 2 -name install.sh -print -quit | xargs -I{} dirname {})"
 [ -n "$kit" ] && [ -f "$kit/install.sh" ] || { echo "install.sh not found in the download. Nothing was installed." >&2; exit 1; }

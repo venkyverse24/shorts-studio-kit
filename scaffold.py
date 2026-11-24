@@ -68,7 +68,7 @@ def main():
 
     gi = os.path.join(target, ".gitignore")
     have = open(gi, encoding="utf-8").read().splitlines() if os.path.exists(gi) else []
-    add = [l for l in ("shorts-kit.json", ".env*") if l not in have]
+    add = [l for l in ("shorts-kit.json", ".env*", ".shorts-tools/") if l not in have]
     if add:
         with open(gi, "a", encoding="utf-8", newline="\n") as f:
             f.write(("\n" if have and have[-1] != "" else "") + "\n".join(add) + "\n")

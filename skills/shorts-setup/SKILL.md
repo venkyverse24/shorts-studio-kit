@@ -10,13 +10,14 @@ description: One-time setup of a studio folder for Shorts Studio Kit after a plu
    `python "${CLAUDE_PLUGIN_ROOT}/scaffold.py" --target .`
    Use `python3` or `py` if `python` is not found. If the path above still shows a literal `${CLAUDE_PLUGIN_ROOT}`, the kit was installed with `install.sh` or `install.ps1`, which already did this step: skip to step 4.
 3. Read the script's summary back to the user in two lines: what was created, what was kept. It never overwrites `brand.md`, `shorts-kit.json` or edited scripts.
-4. Help fill in `brand.md`. Ask only for what is missing, in this order, and write the answers into the file:
+4. Check the tools. Run `python tools/setup_tools.py` (it only reads and changes nothing) and show the user the table. If recommended tools are missing (ffmpeg, voice packages, Kokoro models, Whisper model), tell them the size and source of each, then ask once whether to install them. Only if they say yes, run `python tools/setup_tools.py --install --yes` in the foreground and wait: it can take several minutes and downloads about 1.4 GB. Blender is only installed if they ask (`--with blender`). If a step needs `sudo` or admin rights, tell them to run the printed line themselves. Never install anything they did not agree to, and never install Claude Code or Python for them. Afterwards `brand.md` may already have its tool lines filled in: do not ask for those again.
+5. Help fill in the rest of `brand.md`. Ask only for what is missing, in this order, and write the answers into the file:
    - channel name, niche, narration language, typical length, uploads per week
    - tone, words never to use, closing line (may be empty), number style
    - disclosures that must appear (for example AI-generated voice)
    - which tools exist on this machine: the renderer (for example Blender, or "simple Python frames and ffmpeg"), the narration tool or "I record my own voice", ffmpeg, and the Python command
    Never invent tool paths: check that each path the user gives exists.
-5. Ask for private terms to block (their name, usernames, hostnames, employer, suburb, anything that must never appear in a video) and write them into `shorts-kit.json` under `forbidden`. Remind them that this file stays out of git.
-6. Finish with the next step: `/shorts:short <topic>` (or `/short <topic>` for the install-script route). Say plainly that nothing is ever uploaded, and that the first full run uses their own Claude plan or API usage.
+6. Ask for private terms to block (their name, usernames, hostnames, employer, suburb, anything that must never appear in a video) and write them into `shorts-kit.json` under `forbidden`. Remind them that this file stays out of git.
+7. Finish with the next step: `/shorts:short <topic>` (or `/short <topic>` for the install-script route). Say plainly that nothing is ever uploaded, and that the first full run uses their own Claude plan or API usage.
 
 Never upload, post, create accounts or keys, or install paid tools while setting up.

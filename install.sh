@@ -61,14 +61,25 @@ if ! grep -q 'shorts-studio-kit:begin' "$CLAUDE"; then cat "$KIT/templates/CLAUD
 
 # keep private terms out of git
 GI="$TARGET/.gitignore"; touch "$GI"
-for line in 'shorts-kit.json' '.env*'; do grep -qxF "$line" "$GI" || echo "$line" >> "$GI"; done
+for line in 'shorts-kit.json' '.env*' '.shorts-tools/'; do grep -qxF "$line" "$GI" || echo "$line" >> "$GI"; done
 
 echo
 echo "Shorts Studio Kit installed into $TARGET"
 echo "  files written: $copied"
 if [ "${#skipped[@]}" -gt 0 ]; then echo "  kept your edited versions (use --force to overwrite):"; printf '    %s\n' "${skipped[@]}"; fi
 [ "$kept" -gt 0 ] && echo "  already present, not touched: $kept template file(s)"
-command -v python3 >/dev/null || command -v python >/dev/null || echo "  WARNING: Python 3 not found on PATH. The scripts in tools/ need it."
+# pick a Python that really runs (on Windows, python3 can be a Microsoft Store stub that only prints a message)
+PY=""
+for c in python3 python py; do
+  if "$c" -c "import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)" >/dev/null 2>&1; then PY="$c"; break; fi
+done
+if [ -z "$PY" ]; then
+  echo "  WARNING: Python 3 was not found. Install Python 3.10 or newer, then run: python tools/setup_tools.py --install"
+else
+  # Shows what is installed and what is missing (ffmpeg, local voice, Whisper). Installs only after your yes.
+  if ( : < /dev/tty ) 2>/dev/null; then "$PY" "$TARGET/tools/setup_tools.py" --target "$TARGET" --installer-mode < /dev/tty || true
+  else "$PY" "$TARGET/tools/setup_tools.py" --target "$TARGET" --installer-mode < /dev/null || true; fi
+fi
 echo
 echo "Next:"
 echo "  1. Fill in brand.md and shorts-kit.json (your private terms; this file stays out of git)."

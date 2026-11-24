@@ -8,7 +8,7 @@ Skills, agents and small scripts for making YouTube Shorts with [Claude Code](ht
 
 ## Install (pick one)
 
-You need Claude Code and Python 3. Blender and ffmpeg are only needed if you build 3D videos or mix audio.
+You need [Claude Code](https://claude.com/claude-code) and Python 3.10 or newer first. The installer then checks the other tools (ffmpeg, a local voice, Whisper) and offers to install what is missing: see **Requirements** below.
 
 ### Option 1: one command, no git (recommended for most people)
 
@@ -54,7 +54,7 @@ cd shorts-studio-kit
 
 All three routes install the same things. The installer routes (1 and 3):
 - copy 14 skills and 7 agents into `<studio>/.claude/` (commands are `/short`, `/shorts-hooks` and so on)
-- copy 5 scripts into `<studio>/tools/`
+- copy 6 scripts into `<studio>/tools/` and check which tools you have (see Requirements)
 - create `brand.md`, `shorts-kit.json`, `notes/queue.md` and `analytics/results.csv` only if they do not exist
 - add a short section to `<studio>/CLAUDE.md` (once) and put `shorts-kit.json` in `.gitignore`
 - never overwrite a kit file you edited (use `--force` / `-Force` to update), and never touch your own files
@@ -64,6 +64,31 @@ All three routes install the same things. The installer routes (1 and 3):
 2. Open Claude Code in the studio folder and type `/short <topic>` (or `/shorts:short <topic>` for the plugin).
 
 You can also paste this into Claude Code: *"Install the Shorts Studio Kit from `venkyverse24/shorts-studio-kit` into this folder."*
+
+## Requirements: what you need, and what the installer sets up for you
+
+Every install route finishes by showing this table for your computer ("[ok]" or "[missing]") and asking **once** whether to install what is missing. Nothing is installed without your yes.
+
+| Tool | What it is for | Installed for you? | Size |
+|---|---|---|---|
+| Claude Code | runs the skills and agents | No. Install it first | n/a |
+| Python 3.10 or newer | the kit's scripts and the voice packages | No. It tells you the command (for example `winget install Python.Python.3.12`) | n/a |
+| ffmpeg | joins picture and audio, burns subtitles, checks loudness | Yes, after you agree (winget, Homebrew or apt) | about 100-200 MB |
+| Python packages (Pillow, NumPy, SoundFile, kokoro-onnx, faster-whisper) | local voice, drawing frames, transcript check | Yes, into `.shorts-tools/venv` inside your studio folder, never your system Python | about 0.4 GB |
+| Kokoro voice model files | the local text-to-speech voice | Yes, downloaded from the official release and checked by SHA-256 | 354 MB |
+| Whisper `small.en` model | transcript check of the final audio | Yes, downloaded by faster-whisper from Hugging Face | about 0.5 GB |
+| Blender | optional 3D visuals | Only if you ask: `python tools/setup_tools.py --install --with blender` | over 1 GB |
+| Earshot | optional synthesised sound effects | No. `shorts-earshot` explains how to review and install it yourself | n/a |
+
+The recommended set is about 1.4 GB of downloads in total.
+
+- **Check only, no changes:** `python tools/setup_tools.py`. **Install later:** `python tools/setup_tools.py --install`. **See the exact commands first:** add `--dry-run`.
+- **Hands-off installs:** set `KIT_INSTALL_TOOLS=yes` to install the recommended set without asking, or `KIT_INSTALL_TOOLS=no` to skip the check. When there is no terminal to ask (for example in a script), the installer only shows the table.
+- **Admin rights:** on Linux, `apt` needs `sudo`. The tool only runs it when a terminal is there for your password, and otherwise prints the line for you to run.
+- **Where things go:** Python packages and models live in `<studio>/.shorts-tools/` (already in your `.gitignore`), and the paths are saved to `.shorts-tools/tools.json` and filled into the empty "Tools on this machine" lines of `brand.md`. Delete that folder to remove them. ffmpeg and Blender are removed with your package manager.
+- **Licences:** each tool has its own licence (for example Blender is GPL, ffmpeg is LGPL or GPL depending on the build, the Kokoro model and kokoro-onnx are open source). The tool downloads from the official sources only. Check the terms for your use.
+- **Self-test:** after installing the voice, the tool makes it say a sentence and has Whisper transcribe it, so a broken combination of library versions shows up straight away. Run it again any time with `python tools/setup_tools.py --selftest`.
+- **After a Windows install of ffmpeg or Python,** open a new terminal so the PATH updates.
 
 ## What you get
 
@@ -89,6 +114,7 @@ Scripts (standard library only, no keys):
 | `tools/ytsuggest.py` | What people type into YouTube search (public autocomplete) |
 | `tools/openverse.py` | Find openly licensed sounds and images, with a licence and credit log |
 | `tools/analytics.py` | Results log, ranking against your median, retention drops mapped to scenes |
+| `tools/setup_tools.py` | Shows which tools you have and installs the missing ones after you agree |
 
 ## Privacy
 
@@ -131,7 +157,7 @@ Instructions can fail. If you connect a browser tool, a social-media tool or any
 - **Small samples mislead.** Rankings from fewer than about ten videos are hints.
 - **The YouTube suggestions endpoint is unofficial** and can stop working. Web search is the fallback.
 - **Claude cannot log in to YouTube Studio.** You bring numbers, exports and comments.
-- **The kit includes no renderer or text-to-speech engine.** Name yours in `brand.md`.
+- **The installer sets up ffmpeg, a local voice (Kokoro) and Whisper only after you agree, and Blender only if you ask.** On Windows the Python packages, the model downloads and the self-test were run for real. The `winget`, Homebrew and `apt` commands for ffmpeg and Blender were only checked as dry runs (ffmpeg and Blender were already on the test PC), and nothing on macOS or Linux was executed.
 - **Earshot is optional, third-party and not bundled.** `shorts-earshot` explains how to review and install it yourself.
 
 ## Tests
@@ -147,7 +173,7 @@ Pull the repo and run the installer again. Files you edited are kept and listed;
 
 ## Uninstall
 
-Plugin route: `claude plugin uninstall shorts@shorts-studio-kit`. Installer routes: delete the 13 `shorts-*` folders and `short` from `<studio>/.claude/skills/`, the 7 agent files from `<studio>/.claude/agents/`, the five scripts from `<studio>/tools/`, and the marked block in `CLAUDE.md`.
+Plugin route: `claude plugin uninstall shorts@shorts-studio-kit`. Installer routes: delete the 13 `shorts-*` folders and `short` from `<studio>/.claude/skills/`, the 7 agent files from `<studio>/.claude/agents/`, the six scripts from `<studio>/tools/`, the `.shorts-tools/` folder if you let the installer set up the tools, and the marked block in `CLAUDE.md`.
 
 ## Credits
 
