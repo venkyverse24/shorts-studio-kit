@@ -9,7 +9,7 @@
 #
 # Settings (environment variables):
 #   KIT_REPO    owner/repo on GitHub, e.g. for a fork   (default: venkyverse24/shorts-studio-kit)
-#   KIT_REF     branch or tag to install, e.g. v1.0.0   (default: main)
+#   KIT_REF     branch or tag to install, e.g. v1.1.0   (default: main)
 #   KIT_TARGET  studio folder                           (default: current folder)
 #   KIT_ZIP     a local zip path or URL instead of GitHub (for testing and offline use)
 set -euo pipefail

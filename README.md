@@ -24,7 +24,7 @@ irm https://raw.githubusercontent.com/venkyverse24/shorts-studio-kit/main/bootst
 curl -fsSL https://raw.githubusercontent.com/venkyverse24/shorts-studio-kit/main/bootstrap.sh | bash
 ```
 
-Piping a script from the internet into your shell is a trust decision. The script only downloads this kit's zip and runs the kit's own installer, and you can read it first: download `bootstrap.ps1` or `bootstrap.sh`, open it, then run it. To install a fixed version, set `KIT_REF=v1.0.0` first. To install from a fork, set `KIT_REPO=your-name/your-fork`.
+Piping a script from the internet into your shell is a trust decision. The script only downloads this kit's zip and runs the kit's own installer, and you can read it first: download `bootstrap.ps1` or `bootstrap.sh`, open it, then run it. To install a fixed version, set `KIT_REF=v1.1.0` first. To install from a fork, set `KIT_REPO=your-name/your-fork`.
 
 ### Option 2: Claude Code plugin
 
